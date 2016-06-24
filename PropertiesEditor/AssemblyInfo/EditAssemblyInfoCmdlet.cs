@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Management.Automation;
+﻿using System.Management.Automation;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace PropertiesEditor.AssemblyInfo
 {
@@ -22,14 +22,11 @@ namespace PropertiesEditor.AssemblyInfo
         {
             base.ProcessRecord();
 
-            try
-            {
+            var syntaxTree = CSharpSyntaxTree.ParseText(System.IO.File.ReadAllText(File));
+            var rewriter = new AssemblyAttributeValueRewriter(AssemblyVersion, AssemblyFileVersion, null);
+            var newSyntaxTree = rewriter.Visit(syntaxTree.GetRoot());
 
-            }
-            finally
-            {
-
-            }
+            System.IO.File.WriteAllText(File, newSyntaxTree.ToString());
         }
     }
 }
