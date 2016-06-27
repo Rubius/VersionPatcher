@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace PropertiesEditor.AssemblyInfo
 {
     [Cmdlet(VerbsData.Edit, "AssemblyInfo")]
-    [OutputType(typeof(PSPrimitiveDictionary))]
     public class EditAssemblyInfoCmdlet : Cmdlet
     {
         [Parameter(ValueFromPipeline = true, Position = 0, Mandatory = true)]
@@ -27,6 +26,8 @@ namespace PropertiesEditor.AssemblyInfo
             var newSyntaxTree = rewriter.Visit(syntaxTree.GetRoot());
 
             System.IO.File.WriteAllText(File, newSyntaxTree.ToString());
+
+            WriteVerbose($"{File} patched successfully.");
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using PropertiesEditor.Common;
 
 namespace PropertiesEditor.AssemblyInfo
 {
@@ -21,59 +22,6 @@ namespace PropertiesEditor.AssemblyInfo
             _assemblyInformationalVersion = assemblyInformationalVersion;
             _assemblyFileVersion = assemblyFileVersion;
             _assemblyVersion = assemblyVersion;
-        }
-
-        private string ReplaceToken(string value, int current)
-        {
-            return value == "*" ? current.ToString() : value;
-        }
-
-        private string ProcessVersionString(string currentValue, string newValuePattern, string attributeName)
-        {
-            var containsWildCard = currentValue.Contains("*");
-            var versionPattern = "{0}.{1}.{2}.{3]";
-
-            if (containsWildCard)
-            {
-                if (currentValue.Split('.').Length == 3)
-                {
-                    currentValue = currentValue.Replace("*", "0.0");
-                    versionPattern = "{0}.{1}.*";
-                }
-                else
-                {
-                    currentValue = currentValue.Replace("*", "0");
-                    versionPattern = "{0}.{1}.{2}.*";
-                }
-            }
-
-            var version = new Version(currentValue);
-
-            var tokens = newValuePattern.Split('.');
-            if (tokens.Length < 2 || tokens.Length > 4)
-            {
-                throw new FormatException($"Specified value for {attributeName} has incorrect format.");
-            }
-
-            var versionBuilder = new StringBuilder(ReplaceToken(tokens[0], version.Major));
-            versionBuilder.Append(".");
-            versionBuilder.Append(ReplaceToken(tokens[1], version.Minor));
-            if (tokens.Length > 2)
-            {
-                versionBuilder.Append(".");
-                versionBuilder.Append(ReplaceToken(tokens[2], version.Build));
-
-                if (tokens.Length > 3)
-                {
-                    versionBuilder.Append(".");
-                    versionBuilder.Append(ReplaceToken(tokens[3], version.Revision));
-                }
-            }
-
-            version = new Version(versionBuilder.ToString());
-
-            return containsWildCard ? string.Format(versionPattern, version.Major, version.Minor, version.Build, version.Revision) 
-                : version.ToString();
         }
 
         public override SyntaxNode VisitAttributeArgument(AttributeArgumentSyntax node)
@@ -93,8 +41,7 @@ namespace PropertiesEditor.AssemblyInfo
                     }
 
                     result = node.WithExpression(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, 
-                        SyntaxFactory.Literal(
-                            ProcessVersionString(currentValue, _assemblyVersion, "AssemblyVersion")
+                        SyntaxFactory.Literal(VersionHelper.ProcessVersionString(currentValue, _assemblyVersion, "AssemblyVersion")
                             )));
 
                     break;
@@ -106,8 +53,7 @@ namespace PropertiesEditor.AssemblyInfo
                     }
 
                     result = node.WithExpression(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression,
-                        SyntaxFactory.Literal(
-                            ProcessVersionString(currentValue, _assemblyFileVersion, "AssemblyFileVersion")
+                        SyntaxFactory.Literal(VersionHelper.ProcessVersionString(currentValue, _assemblyFileVersion, "AssemblyFileVersion")
                             )));
 
                     break;
