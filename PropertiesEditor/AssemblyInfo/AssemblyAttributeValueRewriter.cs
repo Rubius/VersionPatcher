@@ -59,7 +59,12 @@ namespace PropertiesEditor.AssemblyInfo
                     break;
 
                 case "AssemblyInformationalVersion":
-                    throw new NotImplementedException("Usages of this attribute is unknown...");
+                    if (_assemblyInformationalVersion != null)
+                    {
+                        throw new NotImplementedException("Cannot patch AssemblyInformationalVersion yet.");
+                    }
+
+                    break;
             }
 
             return result;

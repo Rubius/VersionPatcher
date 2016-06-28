@@ -63,6 +63,8 @@
     <Compile Include="AndroidManifest\AndroidManifest.cs" />
     <Compile Include="AndroidManifest\AndroidManifestPatcher.cs" />
     <Compile Include="AndroidManifest\EditAndroidManifestCmdlet.cs" />
+    <Compile Include="Apple\EditInfoPlistCmdlet.cs" />
+    <Compile Include="Apple\InfoPlist.cs" />
     <Compile Include="AssemblyInfo\AssemblyAttributeValueRewriter.cs" />
     <Compile Include="AssemblyInfo\AssemblyInfoEditedProperies.cs" />
     <Compile Include="AssemblyInfo\EditAssemblyInfoCmdlet.cs" />

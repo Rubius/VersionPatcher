@@ -25,6 +25,8 @@ namespace PropertiesEditor.AndroidManifest
         {
             base.ProcessRecord();
 
+            WriteCommandDetail($"Processing {File}...");
+
             if (string.IsNullOrWhiteSpace(Version))
             {
                 return;
@@ -37,7 +39,7 @@ namespace PropertiesEditor.AndroidManifest
 
             patcher.Patch(File, Version);
 
-            WriteVerbose($"{File} patched successfully.");
+            WriteVerbose($"Processing complete.");
         }
     }
 }

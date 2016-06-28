@@ -21,13 +21,15 @@ namespace PropertiesEditor.AssemblyInfo
         {
             base.ProcessRecord();
 
+            WriteCommandDetail($"Processing file {File}...");
+
             var syntaxTree = CSharpSyntaxTree.ParseText(System.IO.File.ReadAllText(File));
             var rewriter = new AssemblyAttributeValueRewriter(AssemblyVersion, AssemblyFileVersion, null);
             var newSyntaxTree = rewriter.Visit(syntaxTree.GetRoot());
 
             System.IO.File.WriteAllText(File, newSyntaxTree.ToString());
 
-            WriteVerbose($"{File} patched successfully.");
+            WriteCommandDetail($"Processing complete.");
         }
     }
 }
