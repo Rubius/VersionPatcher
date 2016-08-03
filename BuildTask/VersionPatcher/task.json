@@ -1,0 +1,36 @@
+{
+  "id": "eb476c60-3c22-11e6-a55d-a780b9158b04",
+  "name": "VersionPatcher",
+  "friendlyName": "Version Properties Patcher",
+  "description": "Patches properties files like AssemblyInfo.cs, Info.plist, Android manifest",
+  "author": "Rubius",
+  "helpMarkDown": "Replace with markdown to show in help",
+  "category": "Utility",
+  "visibility": [
+    "Build",
+    "Release"
+  ],
+  "demands": [],
+  "version": {
+    "Major": "0",
+    "Minor": "1",
+    "Patch": "5"
+  },
+  "minimumAgentVersion": "1.95.0",
+  "instanceNameFormat": "VersionPatcher $(message)",
+  "inputs": [],
+  "execution": {
+    "PowerShell": {
+      "target": "$(currentDirectory)\\patcher.ps1",
+      "argumentFormat": "",
+      "workingDirectory": "$(currentDirectory)",
+      "platforms": [
+        "windows"
+      ]
+    },
+    "Node": {
+      "target": "runpash.js",
+      "argumentFormat": ""
+    }
+  }
+}
