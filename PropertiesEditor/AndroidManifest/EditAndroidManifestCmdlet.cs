@@ -37,9 +37,16 @@ namespace PropertiesEditor.AndroidManifest
                 VersionCode = VersionCode
             };
 
-            patcher.Patch(File, Version);
+            try
+            {
+                patcher.Patch(File, Version);
+                WriteVerbose($"Processing complete.");
+            }
+            catch (Exception e)
+            {
+                WriteWarning($"{File} has not beed patched because {e}");
+            }
 
-            WriteVerbose($"Processing complete.");
         }
     }
 }

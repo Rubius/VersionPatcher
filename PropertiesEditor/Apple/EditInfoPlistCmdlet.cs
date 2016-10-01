@@ -14,26 +14,34 @@ namespace PropertiesEditor.Apple
         public string File { get; set; }
 
         [Parameter]
-        [Alias("bn")]
-        public int BuildNumber { get; set; }
+        [Alias("v")]
+        public string Version { get; set; }
 
         protected override void ProcessRecord()
         {
             base.ProcessRecord();
 
-            WriteCommandDetail($"Processing {File}...");
+            try
+            {
+                WriteCommandDetail($"Processing {File}...");
 
-            var plist = new InfoPlist(File);
-            var version = plist.Version;
+                var plist = new InfoPlist(File);
+                var version = plist.Version;
 
-            Version newVersion;
-            newVersion = version.Build == -1 
-                ? new Version(version.Major, version.Minor, BuildNumber) 
-                : new Version(version.Major, version.Minor, version.Build, BuildNumber);
+                var versionParam = new Version(Version);
 
-            plist.Version = newVersion;
+                var newVersion = version.Build == -1 
+                    ? new Version(version.Major, version.Minor, versionParam.Build) 
+                    : new Version(version.Major, version.Minor, version.Build, versionParam.Revision);
 
-            plist.Write();
+                plist.Version = newVersion;
+
+                plist.Write();
+            }
+            catch (Exception e)
+            {
+                WriteWarning($"{File} has not beed patched because {e}");
+            }
 
             WriteCommandDetail("Processing complete");
         }
