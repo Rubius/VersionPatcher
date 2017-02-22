@@ -29,3 +29,5 @@ if ($Overwrite) {
 
 # Actually upload it
 Invoke-RestMethod -Uri $url -Credential $Credential -Headers $headers -ContentType application/octet-stream -Method Put -InFile $taskZipItem
+
+if (Test-Path $taskZip) { Remove-Item $taskZip }

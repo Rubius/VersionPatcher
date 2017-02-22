@@ -1,6 +1,7 @@
 ﻿namespace PropertiesEditor.Common
 {
     using System;
+    using System.IO;
     using System.Xml;
 
     public abstract class ManifestBase
@@ -17,7 +18,7 @@
         public void Load(string path)
         {
             _doc = new XmlDocument();
-            _doc.Load(path);
+            _doc.Load(new FileStream(path, FileMode.Open));
             _versionNode = GetVersion();
         }
 
@@ -25,7 +26,7 @@
 
         public void Save(string path)
         {
-            _doc.Save(path);
+            _doc.Save(new FileStream(path, FileMode.Create));
         }
     }
 }

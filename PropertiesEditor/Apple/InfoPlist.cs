@@ -26,7 +26,7 @@
 
         public void Write()
         {
-            _doc.Save(_path);
+            _doc.Save(new FileStream(_path, FileMode.Create));
             var xml = File.ReadAllText(_path);
             var correctedXml = xml.Replace(@"dtd""[]", @"dtd""");
             File.WriteAllText(_path, correctedXml);
@@ -36,7 +36,7 @@
         {
             _path = path;
             _doc = new XmlDocument();
-            _doc.Load(path);
+            _doc.Load(new FileStream(path, FileMode.Open));
         }
     }
 }

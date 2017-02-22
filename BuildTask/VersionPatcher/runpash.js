@@ -1,11 +1,11 @@
 var path = require('path');
 var tl = require('vso-task-lib');
 
-var pash = new tl.ToolRunner(tl.which('pash', true));
+var powershell = new tl.ToolRunner(tl.which('powershell', true));
 var scriptPath = path.resolve(__dirname, 'patcher.ps1');
-pash.arg('"& ' + scriptPath + " " + __dirname + '"');
+powershell.arg('-File ' + scriptPath);
 
-pash.exec({ failOnStdErr: false })
+powershell.exec({ failOnStdErr: false, cwd: __dirname})
     .then(function(code) {
         tl.exit(code);
     })

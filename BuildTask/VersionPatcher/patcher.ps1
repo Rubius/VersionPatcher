@@ -1,36 +1,31 @@
-param($path)
-pwd
-
-Write-Host "Path is $path"
-
-if($path)
+if (Get-PSDrive -Name '/') 
 {
-    Join-Path $path 'PropertiesEditor.dll' | Import-Module
+    Import-Module './core/PropertiesEditor.dll'
 }
 else
 {
     Import-Module './PropertiesEditor.dll'
 }
-Write-Host "LOADED"
+Write-Debug "PropertiesEditor module loaded"
 
 if($env:BUILD_SOURCESDIRECTORY)
 {
     cd $env:BUILD_SOURCESDIRECTORY
 }
 Write-Host 'Current directory:'
-pwd
+Get-Location
 
-function GetVersionFromLog
+git version
+
+function GetVersionFromLog ($currentTag)
 {
-    param($currentTag)
-
     if($currentTag)
     {
         if($currentTag -isnot [system.array]) { $currentTag = @($currentTag)}
         $tagFound = $false
         foreach ($tag in $currentTag)
         {
-            Write-Host "CURRENT TAG $tag"
+            Write-Host "CURRENT TAG: $tag"
 
             if ($tag -match '(?<version>\d+\.\d+(\.\d+(\.\d+)?)?)(\((?<code>\d+)\))?')
             {
@@ -53,10 +48,9 @@ function GetVersionFromLog
 
 function GetCurrentVersion
 {
-
-Write-Host "CURRENT VERSION"
+    Write-Host "Checking for current version"
+    
     $currentTag = git tag -l v*.* --points-at HEAD
-
     Write-Host "FOUND TAG $currentTag"
 
     GetVersionFromLog $currentTag
@@ -64,7 +58,7 @@ Write-Host "CURRENT VERSION"
 
 function GetLastVersion
 {
-Write-Host "LAST VERSION"
+    Write-Host "Trying to get latest version"
     $currentTag = git describe --tags --match v*.* --abbrev=0
 
     Write-Host "LATEST VERSION $currentTag"
@@ -72,41 +66,28 @@ Write-Host "LAST VERSION"
     GetVersionFromLog $currentTag
 }
 
-function PatchAssemblyInfos
+function Patch ([string]$type,$version,[string[]]$include,[string]$command) 
 {
-    param($version1)
-
-    Write-Host "PATCH ASSEMBLIES"
-
-    $test = gci -Include 'AssemblyInfo.cs' -Recurse
-
-    Write-Host "Found $($test.Count) files. Going to patch with $version1"
-
-    $test | foreach {Edit-AssemblyInfo -File $_ -AssemblyVersion $version1}
+    Write-Host "Performing $type patching with $($version.Version) ($($version.Code))..."
+    gci -Include $include -Recurse | foreach {Invoke-Expression $command} | Measure-Object | select -ExpandProperty Count | Write-Host -NoNewline
+    Write-Host " files patched."
 }
 
-function PatchAndroidAssemblies
+function PatchFiles ($version)
 {
-    param($version)
-    PatchAssemblyInfos $version.Version
-    
-    Write-Host "PATCH INFOPLIST"
-
-    gci -Include 'Info.plist' -Recurse | foreach {Edit-InfoPlist -File $_ -Version $version.Version}
-
-    Write-Host "PATCH ANDROID"
+    Patch -type 'AssemblyInfo' -version $version -include @('AssemblyInfo.cs') -command 'Edit-AssemblyInfo -File $_ -Version $version.Version'
+    Patch -type 'InfoPlist' -version $version -include @('Info.plist') -command 'Edit-InfoPlist -File $_ -Version $version.Version'
 
     if($version.Code)
     {
-        gci -Include 'AndroidManifest.xml' -Recurse | foreach {Edit-AndroidManifest -File $_ -Version $version.Version -VersionCode $version.Code}
+        Patch -type 'AndroidManifest' -version $version -include 'AndroidManifest.xml' -command 'Edit-AndroidManifest -File $_ -Version $version.Version -VersionCode $version.Code'
     }
-
 }
 
 $currentVersion = GetCurrentVersion
 if($currentVersion)
 {
-    PatchAndroidAssemblies $currentVersion
+    PatchFiles $currentVersion
 }
 else
 {
@@ -129,25 +110,27 @@ else
 
         $lastVersion.Code = $incrementedCode
         $newTag = "$newTag($incrementedCode)"
-
     }
 
     $tagfound = git tag -l "$newTag"
+    Write-Debug "$tagfound"
 
     if($tagfound -eq $null)
     {
         $puttag = git tag $newtag
+        Write-Debug "$puttag"
 
         Write-Host "TAG CREATED"
 
         $pushtags = git push --porcelain origin $newtag
+        Write-Debug "$pushtags"
 
         Write-Host "TAG PUSHED"
     }
     else
     {
-        Write-Host "No NEED TO PUSH EXISTING TAG"
+        Write-Host "No need to push existing tag"
     }
 
-    PatchAndroidAssemblies $lastVersion
+    PatchFiles $lastVersion
 }
