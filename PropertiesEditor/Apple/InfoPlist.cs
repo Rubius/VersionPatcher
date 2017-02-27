@@ -39,7 +39,14 @@
         {
             _path = path;
             _doc = new XmlDocument();
-            _doc.LoadXml(File.ReadAllText(path));
+            using (var stream = new FileStream(path, FileMode.Open))
+            using (var reader = XmlReader.Create(stream, new XmlReaderSettings()
+            {
+                DtdProcessing = DtdProcessing.Ignore
+            }))
+            {
+                _doc.Load(reader);
+            }
         }
     }
 }
