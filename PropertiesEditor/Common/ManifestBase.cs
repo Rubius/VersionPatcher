@@ -18,7 +18,7 @@
         public void Load(string path)
         {
             _doc = new XmlDocument();
-            _doc.Load(new FileStream(path, FileMode.Open));
+            _doc.LoadXml(File.ReadAllText(path));
             _versionNode = GetVersion();
         }
 
@@ -26,7 +26,10 @@
 
         public void Save(string path)
         {
-            _doc.Save(new FileStream(path, FileMode.Create));
+            using (var fileStream = new FileStream(path, FileMode.Create))
+            {
+                _doc.Save(fileStream);
+            }
         }
     }
 }

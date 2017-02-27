@@ -1,4 +1,4 @@
-if (Get-PSDrive -Name '/') 
+if (Get-PSDrive -Name "/" -ErrorAction SilentlyContinue)
 {
     Import-Module './core/PropertiesEditor.dll'
 }
@@ -10,7 +10,7 @@ Write-Debug "PropertiesEditor module loaded"
 
 if($env:BUILD_SOURCESDIRECTORY)
 {
-    cd $env:BUILD_SOURCESDIRECTORY
+    cd $env:BUILD_SOURCESDIRECTORYt
 }
 Write-Host 'Current directory:'
 Get-Location
@@ -122,7 +122,8 @@ else
 
         Write-Host "TAG CREATED"
 
-        $pushtags = git push --porcelain origin $newtag
+        $unconfig = git config --unset credential.helper
+        $pushtags = git push --porcelain origin "`"$newtag`""
         Write-Debug "$pushtags"
 
         Write-Host "TAG PUSHED"
