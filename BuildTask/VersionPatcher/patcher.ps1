@@ -10,7 +10,7 @@ Write-Debug "PropertiesEditor module loaded"
 
 if($env:BUILD_SOURCESDIRECTORY)
 {
-    cd $env:BUILD_SOURCESDIRECTORYt
+    cd $env:BUILD_SOURCESDIRECTORY
 }
 Write-Host 'Current directory:'
 Get-Location
