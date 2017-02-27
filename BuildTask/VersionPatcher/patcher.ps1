@@ -124,9 +124,13 @@ else
 
         Write-Host "TAG CREATED"
 
-        $unconfig = git config --unset credential.helper
+        $currentRemoteUri = git config remote.origin.url
+        $newUriBuilder = New-Object System.UriBuilder ($currentRemoteUri)
+        $newUriBuilder.UserName = "OAuth"
+        $newUriBuilder.Password = $Env:SYSTEM_ACCESSTOKEN
+        $gitset = git remote set-url origin $newUriBuilder
         $pushtags = git push --porcelain origin "`"$newtag`""
-        Write-Debug "$pushtags"
+        $gitset = git remote set-url origin $currentRemoteUri
 
         Write-Host "TAG PUSHED"
     }
