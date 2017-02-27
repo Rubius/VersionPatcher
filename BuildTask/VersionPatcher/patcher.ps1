@@ -15,6 +15,7 @@ if($env:BUILD_SOURCESDIRECTORY)
 Write-Host 'Current directory:'
 Get-Location
 
+$env:GIT_TERMINAL_PROMPT = '0'
 git version
 
 function GetVersionFromLog ($currentTag)
@@ -69,8 +70,9 @@ function GetLastVersion
 function Patch ([string]$type,$version,[string[]]$include,[string]$command) 
 {
     Write-Host "Performing $type patching with $($version.Version) ($($version.Code))..."
-    gci -Include $include -Recurse | foreach {Invoke-Expression $command} | Measure-Object | select -ExpandProperty Count | Write-Host -NoNewline
-    Write-Host " files patched."
+    $files = gci -Include $include -Recurse
+    $files | foreach {Invoke-Expression $command}
+    Write-Host "$($files.Count) files patched."
 }
 
 function PatchFiles ($version)
