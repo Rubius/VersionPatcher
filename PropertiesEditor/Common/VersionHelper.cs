@@ -13,7 +13,7 @@ namespace PropertiesEditor.Common
         internal static string ProcessVersionString(string currentValue, string newValuePattern, string attributeName)
         {
             var containsWildCard = currentValue.Contains("*");
-            var versionPattern = "{0}.{1}.{2}.{3]";
+            var versionPattern = "{0}.{1}.{2}.{3}";
 
             if (containsWildCard)
             {

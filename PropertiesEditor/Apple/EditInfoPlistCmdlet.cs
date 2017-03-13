@@ -26,15 +26,10 @@ namespace PropertiesEditor.Apple
                 WriteCommandDetail($"Processing {File}...");
 
                 var plist = new InfoPlist(File);
-                var version = plist.Version;
 
                 var versionParam = new Version(Version);
 
-                var newVersion = version.Build == -1 
-                    ? new Version(version.Major, version.Minor, versionParam.Build) 
-                    : new Version(version.Major, version.Minor, version.Build, versionParam.Revision);
-
-                plist.Version = newVersion;
+                plist.Version = versionParam;
 
                 plist.Write();
             }
