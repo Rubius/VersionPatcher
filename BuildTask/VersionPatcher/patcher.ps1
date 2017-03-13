@@ -85,6 +85,9 @@ function PatchFiles ($version)
         Patch -type 'AndroidManifest' -version $version -include 'AndroidManifest.xml' -command 'Edit-AndroidManifest -File $_ -Version $version.Version -VersionCode $version.Code'
     }
 }
+#Begin
+Write-Host 'Removing local tags'
+git fetch --prune origin '+refs/tags/*:refs/tags/*'
 
 $currentVersion = GetCurrentVersion
 if($currentVersion)
