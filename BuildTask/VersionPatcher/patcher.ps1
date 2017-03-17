@@ -87,7 +87,7 @@ function PatchFiles ($version)
 }
 #Begin
 Write-Host 'Removing local tags'
-git fetch --prune origin '+refs/tags/*:refs/tags/*'
+git -c http.extraheader="AUTHORIZATION: bearer $($Env:SYSTEM_ACCESSTOKEN)" fetch --prune origin '+refs/tags/*:refs/tags/*'
 
 $currentVersion = GetCurrentVersion
 if($currentVersion)
@@ -130,9 +130,8 @@ else
         $currentRemoteUri = git config remote.origin.url
         $newUriBuilder = New-Object System.UriBuilder ($currentRemoteUri)
         $newUriBuilder.UserName = "OAuth"
-        $newUriBuilder.Password = $Env:SYSTEM_ACCESSTOKEN
         $gitset = git remote set-url origin $newUriBuilder
-        $pushtags = git push --porcelain origin "`"$newtag`""
+        $pushtags = git -c http.extraheader="AUTHORIZATION: bearer $($Env:SYSTEM_ACCESSTOKEN)" push --porcelain origin "`"$newtag`""
         $gitset = git remote set-url origin $currentRemoteUri
 
         Write-Host "TAG PUSHED"
