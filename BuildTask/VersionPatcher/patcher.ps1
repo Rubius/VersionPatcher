@@ -87,7 +87,7 @@ function PatchFiles ($version)
 }
 #Begin
 Write-Host 'Removing local tags'
-git -c http.extraheader="AUTHORIZATION: bearer $($Env:SYSTEM_ACCESSTOKEN)" fetch --prune origin '+refs/tags/*:refs/tags/*'
+$tagremove = git -c http.extraheader="AUTHORIZATION: bearer $($Env:SYSTEM_ACCESSTOKEN)" fetch --prune origin '+refs/tags/*:refs/tags/*' --progress
 
 $currentVersion = GetCurrentVersion
 if($currentVersion)
