@@ -26,6 +26,9 @@ namespace PropertiesEditor.AssemblyInfo
 
         public override SyntaxNode VisitAttributeArgument(AttributeArgumentSyntax node)
         {
+            if (!node.IsKind(SyntaxKind.StringLiteralToken))
+                return node;
+
             var attributeSyntax = (AttributeSyntax) node.Parent.Parent;
 
             SyntaxNode result = node;
