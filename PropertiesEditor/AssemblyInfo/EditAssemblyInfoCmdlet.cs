@@ -1,4 +1,5 @@
-﻿using System.Management.Automation;
+﻿using System;
+using System.Management.Automation;
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace PropertiesEditor.AssemblyInfo
@@ -23,11 +24,18 @@ namespace PropertiesEditor.AssemblyInfo
 
             WriteCommandDetail($"Processing file {File}...");
 
-            var syntaxTree = CSharpSyntaxTree.ParseText(System.IO.File.ReadAllText(File));
-            var rewriter = new AssemblyAttributeValueRewriter(AssemblyVersion, AssemblyFileVersion, null);
-            var newSyntaxTree = rewriter.Visit(syntaxTree.GetRoot());
+            try
+            {
+                var syntaxTree = CSharpSyntaxTree.ParseText(System.IO.File.ReadAllText(File));
+                var rewriter = new AssemblyAttributeValueRewriter(AssemblyVersion, AssemblyFileVersion, null);
+                var newSyntaxTree = rewriter.Visit(syntaxTree.GetRoot());
 
-            System.IO.File.WriteAllText(File, newSyntaxTree.ToString());
+                System.IO.File.WriteAllText(File, newSyntaxTree.ToString());
+            }
+            catch (Exception e)
+            {
+                WriteWarning($"{File} has not beed patched because {e}");
+            }
 
             WriteCommandDetail($"Processing complete.");
         }
