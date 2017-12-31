@@ -7,6 +7,7 @@ else
     Import-Module './PropertiesEditor.dll'
 }
 Write-Debug "PropertiesEditor module loaded"
+pushd
 
 if($env:BUILD_SOURCESDIRECTORY)
 {
@@ -49,6 +50,7 @@ function GetVersionFromLog ($currentTag)
 
 function GetCurrentVersion
 {
+	#return @{Version = "1.0.3.0"; Code="123"}
     Write-Host "Checking for current version"
     
     $currentTag = git tag -l v*.* --points-at HEAD
@@ -67,6 +69,57 @@ function GetLastVersion
     GetVersionFromLog $currentTag
 }
 
+function PatchJavascript($file, $version) 
+{
+	Write-Host "Patching JS '$file' with version '$version'"
+	(Get-Content $file).replace('#version#', $version) | Set-Content $file
+}
+
+function PatchDotNetCoreCsproj($file, $version) 
+{
+	Write-Host "Patching .NET Core csproj '$file' with version '$version'"
+	$xml = [xml](Get-Content $file)
+	$sdk = $xml.Project.Sdk
+	
+	if ($sdk.Contains("Microsoft.NET.Sdk")) 
+	{
+		Try 
+		{
+			$xml.Project.PropertyGroup[0].AssemblyVersion = $version
+		} 
+		Catch 
+		{
+			$versionNode = $xml.CreateElement("AssemblyVersion")
+			$versionNode.set_InnerXML($version)
+			$xml.Project.PropertyGroup[0].AppendChild($versionNode)
+		}
+	
+		Try 
+		{
+			$xml.Project.PropertyGroup[0].FileVersion = $version
+		} 
+		Catch 
+		{
+			$versionNode = $xml.CreateElement("FileVersion")
+			$versionNode.set_InnerXML($version)
+			$xml.Project.PropertyGroup[0].AppendChild($versionNode)
+		}
+
+		Try 
+		{
+			$xml.Project.PropertyGroup[0].Version = $version
+		} 
+		Catch 
+		{
+			$versionNode = $xml.CreateElement("Version")
+			$versionNode.set_InnerXML($version)
+			$xml.Project.PropertyGroup[0].AppendChild($versionNode)
+		}
+		
+		$xml.Save($file)
+	}
+}
+
 function Patch ([string]$type,$version,[string[]]$include,[string]$command) 
 {
     Write-Host "Performing $type patching with $($version.Version) ($($version.Code))..."
@@ -79,6 +132,9 @@ function PatchFiles ($version)
 {
     Patch -type 'AssemblyInfo' -version $version -include @('AssemblyInfo.cs') -command 'Edit-AssemblyInfo -File $_ -Version $version.Version'
     Patch -type 'InfoPlist' -version $version -include @('Info.plist') -command 'Edit-InfoPlist -File $_ -Version $version.Version'
+    Patch -type 'DotNetCoreCsproj' -version $version -include @('*.csproj') -command 'PatchDotNetCoreCsproj -file $_ -version  $version.Version'
+    Patch -type 'version.js' -version $version -include @('version.js') -command 'PatchJavascript -file $_ -version  $version.Version'
+    Patch -type 'environment.js' -version $version -include @('environment*.[tj]s') -command 'PatchJavascript -file $_ -version  $version.Version'
 
     if($version.Code)
     {
@@ -145,3 +201,4 @@ else
 
     PatchFiles $lastVersion
 }
+popd
