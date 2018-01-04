@@ -8,7 +8,6 @@ else
 }
 Write-Debug "PropertiesEditor module loaded"
 pushd
-
 if($env:BUILD_SOURCESDIRECTORY)
 {
     cd $env:BUILD_SOURCESDIRECTORY
@@ -83,37 +82,42 @@ function PatchDotNetCoreCsproj($file, $version)
 	
 	if ($sdk.Contains("Microsoft.NET.Sdk")) 
 	{
+		$firstPropertyGroup = $xml.Project.PropertyGroup;
+		if ($firstPropertyGroup -is [array]) 
+		{
+			$firstPropertyGroup = $firstPropertyGroup[0];
+		}
 		Try 
 		{
-			$xml.Project.PropertyGroup[0].AssemblyVersion = $version
+			$firstPropertyGroup.AssemblyVersion = $version
 		} 
 		Catch 
 		{
 			$versionNode = $xml.CreateElement("AssemblyVersion")
 			$versionNode.set_InnerXML($version)
-			$xml.Project.PropertyGroup[0].AppendChild($versionNode)
+			$firstPropertyGroup.AppendChild($versionNode)
 		}
 	
 		Try 
 		{
-			$xml.Project.PropertyGroup[0].FileVersion = $version
+			$firstPropertyGroup.FileVersion = $version
 		} 
 		Catch 
 		{
 			$versionNode = $xml.CreateElement("FileVersion")
 			$versionNode.set_InnerXML($version)
-			$xml.Project.PropertyGroup[0].AppendChild($versionNode)
+			$firstPropertyGroup.AppendChild($versionNode)
 		}
 
 		Try 
 		{
-			$xml.Project.PropertyGroup[0].Version = $version
+			$firstPropertyGroup.Version = $version
 		} 
 		Catch 
 		{
 			$versionNode = $xml.CreateElement("Version")
 			$versionNode.set_InnerXML($version)
-			$xml.Project.PropertyGroup[0].AppendChild($versionNode)
+			$firstPropertyGroup.AppendChild($versionNode)
 		}
 		
 		$xml.Save($file)
