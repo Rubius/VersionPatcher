@@ -78,7 +78,20 @@ function PatchDotNetCoreCsproj($file, $version)
 {
 	Write-Host "Patching .NET Core csproj '$file' with version '$version'"
 	$xml = [xml](Get-Content $file)
-	$sdk = $xml.Project.Sdk
+	$project = $xml.Project;
+	if ($project -eq $null) 
+	{
+		Write-Host "Not a .net core project"
+		return;
+	}
+	
+	$sdk = $project.Sdk;
+	if ($sdk -eq $null) 
+	{
+		Write-Host "Not a .net core project"
+		return;
+	}
+	
 	
 	if ($sdk.Contains("Microsoft.NET.Sdk")) 
 	{
