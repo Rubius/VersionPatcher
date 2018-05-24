@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "VersionPatcher",
     "name": "Version Patcher",
-    "version": "0.5.14",
+    "version": "0.5.17",
     "publisher": "Rubius",
     "targets": [
         {

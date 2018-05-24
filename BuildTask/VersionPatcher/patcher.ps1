@@ -190,7 +190,6 @@ Write-Host $tagremove
 $currentVersion = GetCurrentVersion
 if($currentVersion)
 {
-	cd "testfiles"
     PatchFiles $currentVersion
 }
 else
