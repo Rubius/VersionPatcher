@@ -2,14 +2,14 @@
     "manifestVersion": 1,
     "id": "VersionPatcher",
     "name": "Version Patcher",
-    "version": "0.0.3",
+    "version": "0.5.17",
     "publisher": "Rubius",
     "targets": [
         {
             "id": "Microsoft.VisualStudio.Services"
         }
     ],    
-    "description": "Patches properties files like AssemblyInfo.cs, Info.plist, Android manifest.",
+    "description": "Patches properties files like AssemblyInfo.cs, Info.plist, Android manifest, JS files (#version#) and .net core csproj.",
     "categories": [
         "Build and release"
     ],

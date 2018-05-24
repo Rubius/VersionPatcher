@@ -1,3 +1,4 @@
+#Upload.ps1 -TaskPath VersionPatcher -TfsUrl https://tfs.dplabs.org/tfs -Overwrite
 param(
    [Parameter(Mandatory=$true)][string]$TaskPath,
    [Parameter(Mandatory=$true)][string]$TfsUrl,

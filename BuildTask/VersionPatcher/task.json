@@ -2,7 +2,7 @@
   "id": "eb476c60-3c22-11e6-a55d-a780b9158b04",
   "name": "VersionPatcher",
   "friendlyName": "Version Properties Patcher",
-  "description": "Patches properties files like AssemblyInfo.cs, Info.plist, Android manifest",
+  "description": "Patches properties files like AssemblyInfo.cs, Info.plist, Android manifest, JS and .Net Core csproj",
   "author": "Rubius",
   "helpMarkDown": "Replace with markdown to show in help",
   "category": "Utility",
@@ -13,8 +13,8 @@
   "demands": [],
   "version": {
     "Major": "0",
-    "Minor": "3",
-    "Patch": "1"
+    "Minor": "5",
+    "Patch": "10"
   },
   "minimumAgentVersion": "1.95.0",
   "instanceNameFormat": "VersionPatcher $(message)",
