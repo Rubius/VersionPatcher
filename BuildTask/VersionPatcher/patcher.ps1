@@ -1,3 +1,7 @@
+param (
+	[switch]$test = $false
+)
+
 if (Get-PSDrive -Name "/" -ErrorAction SilentlyContinue)
 {
     Import-Module './core/PropertiesEditor.dll'
@@ -15,8 +19,6 @@ if($env:BUILD_SOURCESDIRECTORY)
 Write-Host 'Current directory:'
 Get-Location
 
-$env:GIT_TERMINAL_PROMPT = '0'
-git version
 
 function GetVersionFromLog ($currentTag)
 {
@@ -95,42 +97,49 @@ function PatchDotNetCoreCsproj($file, $version)
 	
 	if ($sdk.Contains("Microsoft.NET.Sdk")) 
 	{
+		
 		$firstPropertyGroup = $xml.Project.PropertyGroup;
 		if ($firstPropertyGroup -is [array]) 
 		{
 			$firstPropertyGroup = $firstPropertyGroup[0];
 		}
-		Try 
-		{
-			$firstPropertyGroup.AssemblyVersion = $version
-		} 
-		Catch 
+		
+		
+		$assemblyVersion = $xml.SelectSingleNode("//Project/PropertyGroup/AssemblyVersion")
+		if ($assemblyVersion -eq $null) 
 		{
 			$versionNode = $xml.CreateElement("AssemblyVersion")
 			$versionNode.set_InnerXML($version)
 			$firstPropertyGroup.AppendChild($versionNode)
+		} 
+		else 
+		{
+			$assemblyVersion.'#text' = $version				
 		}
 	
-		Try 
-		{
-			$firstPropertyGroup.FileVersion = $version
-		} 
-		Catch 
+		$assemblyVersion = $xml.SelectSingleNode("//Project/PropertyGroup/FileVersion")
+		if ($assemblyVersion -eq $null) 
 		{
 			$versionNode = $xml.CreateElement("FileVersion")
 			$versionNode.set_InnerXML($version)
 			$firstPropertyGroup.AppendChild($versionNode)
-		}
-
-		Try 
-		{
-			$firstPropertyGroup.Version = $version
 		} 
-		Catch 
+		else 
+		{
+			$assemblyVersion.'#text' = $version				
+		}
+	
+	
+		$assemblyVersion = $xml.SelectSingleNode("//Project/PropertyGroup/Version")
+		if ($assemblyVersion -eq $null) 
 		{
 			$versionNode = $xml.CreateElement("Version")
 			$versionNode.set_InnerXML($version)
 			$firstPropertyGroup.AppendChild($versionNode)
+		} 
+		else 
+		{
+			$assemblyVersion.'#text' = $version				
 		}
 		
 		$xml.Save($file)
@@ -158,6 +167,21 @@ function PatchFiles ($version)
         Patch -type 'AndroidManifest' -version $version -include 'AndroidManifest.xml' -command 'Edit-AndroidManifest -File $_ -Version $version.Version -VersionCode $version.Code'
     }
 }
+
+if ($test) 
+{
+	Write-Host "Test mode"
+	Try {
+		PatchFiles @{Version = "2.3.1.6"; Code="123"}
+	} Catch {
+	}
+	popd
+	return;
+}
+
+$env:GIT_TERMINAL_PROMPT = '0'
+git version
+
 #Begin
 Write-Host 'Removing local tags'
 $tagremove = git -c http.extraheader="AUTHORIZATION: bearer $($Env:SYSTEM_ACCESSTOKEN)" fetch --prune origin '+refs/tags/*:refs/tags/*' --progress
@@ -166,6 +190,7 @@ Write-Host $tagremove
 $currentVersion = GetCurrentVersion
 if($currentVersion)
 {
+	cd "testfiles"
     PatchFiles $currentVersion
 }
 else
